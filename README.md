@@ -16,6 +16,52 @@ An interactive event registration and admin dashboard platform for the Silent Di
   - Real-time instant search bar (searchable by Name, Email, and Ticket ID).
   - Refresh and CSV Export download tools.
 
+## Admin Dashboard Access
+
+The project includes a protected administrator dashboard for viewing and managing registrations.
+
+### Access Methods
+
+Users can access the Admin Dashboard by:
+
+1. Clicking the profile icon located in the navigation bar on:
+
+   * Home Page
+   * Event Info Page
+   * Registration Page
+
+OR
+
+2. Opening:
+
+admin.html
+
+directly.
+
+### Administrator Password
+
+Current administrator password:
+
+NOTIONADMIN2025
+
+### Dashboard Capabilities
+
+* View all registrations
+* Search registrations by Name
+* Search registrations by Email
+* Search registrations by Ticket ID
+* View registration statistics
+* View recent registrations
+* Export registration data as CSV
+
+## Security
+
+* Uses Supabase Publishable Key only
+* No Secret Keys or Service Role Keys are exposed
+* Registration inputs are validated before submission
+* Admin Dashboard is password protected
+* Supabase Row Level Security policies should be configured for production deployments
+
 ## Technologies Used
 
 - **Frontend**: HTML5, Vanilla JavaScript, CSS3
@@ -36,9 +82,13 @@ An interactive event registration and admin dashboard platform for the Silent Di
 ├── confirmation.html             # Registration success ticket page
 ├── admin.html                    # Admin Dashboard page
 ├── supabase.js                   # Supabase client setup script
+├── code_event_details.html       # Reference file / original markup
+├── code_event_portal.html        # Reference file / original markup
+├── code_event_reg_portal.html    # Reference file / original markup
+├── code_event_reg_success.html   # Reference file / original markup
+├── LICENSE                       # Project license file
 ├── .gitignore                    # Git ignore file
 └── README.md                     # Documentation
-
 ```
 
 ## Supabase Integration
