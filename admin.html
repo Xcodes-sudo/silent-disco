@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Silent Disco | Admin Dashboard</title>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="supabase.js"></script>
+
+<!-- Security Gating Style and Script -->
+<style id="security-hide-body">body { display: none !important; }</style>
+<script>
+    (function() {
+        const password = prompt("Enter Admin Password:");
+        if (password !== "NOTIONADMIN2025") {
+            alert("Incorrect password!");
+            window.location.href = "index.html";
+        } else {
+            // Correct password: show the body when DOM is ready
+            document.addEventListener("DOMContentLoaded", function() {
+                const styleEl = document.getElementById("security-hide-body");
+                if (styleEl) {
+                    styleEl.remove();
+                }
+            });
+        }
+    })();
+</script>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Inter:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error": "#690005",
+                      "surface-container-low": "#1c1b1b",
+                      "primary": "#dbfcff",
+                      "on-primary-container": "#006970",
+                      "secondary-fixed": "#e2e2e2",
+                      "on-primary-fixed-variant": "#004f54",
+                      "on-secondary-fixed": "#1a1c1c",
+                      "on-surface": "#e5e2e1",
+                      "tertiary-container": "#dcd9d8",
+                      "secondary-fixed-dim": "#c6c6c7",
+                      "on-primary-fixed": "#002022",
+                      "on-surface-variant": "#b9cacb",
+                      "inverse-surface": "#e5e2e1",
+                      "primary-fixed": "#7df4ff",
+                      "surface-container-high": "#2a2a2a",
+                      "error": "#ffb4ab",
+                      "surface-bright": "#3a3939",
+                      "secondary-container": "#454747",
+                      "inverse-on-surface": "#313030",
+                      "on-background": "#e5e2e1",
+                      "tertiary-fixed-dim": "#c8c6c5",
+                      "on-primary": "#00363a",
+                      "error-container": "#93000a",
+                      "tertiary-fixed": "#e5e2e1",
+                      "surface-container": "#201f1f",
+                      "outline": "#849495",
+                      "on-error-container": "#ffdad6",
+                      "background": "#131313",
+                      "outline-variant": "#3b494b",
+                      "primary-fixed-dim": "#00dbe9",
+                      "on-tertiary-container": "#5f5e5e",
+                      "surface-container-lowest": "#0e0e0e",
+                      "tertiary": "#f8f5f5",
+                      "on-secondary-container": "#b4b5b5",
+                      "surface": "#131313",
+                      "on-tertiary-fixed-variant": "#474746",
+                      "on-tertiary-fixed": "#1c1b1b",
+                      "on-secondary-fixed-variant": "#454747",
+                      "primary-container": "#00f0ff",
+                      "on-secondary": "#2f3131",
+                      "inverse-primary": "#006970",
+                      "on-tertiary": "#313030",
+                      "surface-dim": "#131313",
+                      "surface-container-highest": "#353534",
+                      "surface-tint": "#00dbe9",
+                      "secondary": "#c6c6c7",
+                      "surface-variant": "#353534"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "8px",
+                      "margin-mobile": "20px",
+                      "gutter": "24px",
+                      "container-max": "1200px",
+                      "margin-desktop": "64px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Anton"],
+                      "display-lg": ["Anton"],
+                      "headline-lg-mobile": ["Anton"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-mono": ["JetBrains Mono"]
+              },
+              "fontSize": {
+                      "headline-lg": ["48px", {"lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                      "display-lg": ["84px", {"lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["36px", {"lineHeight": "40px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1em", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .live-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .3; }
+        }
+        .neon-border-hover:hover {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            border-color: #00f0ff;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #131313;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #353534;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary selection:text-background">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 bg-background/60 backdrop-blur-xl border-b border-white/10">
+<div class="flex items-center gap-4">
+<h1 class="font-display-lg text-primary tracking-tighter text-[32px] md:text-[40px]">SILENT DISCO</h1>
+</div>
+<div class="hidden md:flex items-center space-x-8">
+<div class="relative group">
+<input id="search-input" class="bg-transparent border-b border-white/20 focus:border-primary outline-none py-1 px-2 font-label-mono text-xs transition-all w-48 focus:w-64" placeholder="SEARCH SYSTEM..." type="text"/>
+<span class="material-symbols-outlined absolute right-2 top-1 text-on-surface-variant text-sm">search</span>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-10 w-10 bg-surface-container-highest border border-white/10 overflow-hidden">
+<img alt="Admin Profile Avatar" class="w-full h-full object-cover" data-alt="A close-up professional headshot of a modern tech administrator with a sharp, focused expression. The background is a dark, minimalist studio setting with subtle blue backlighting that matches a high-end electronic music event aesthetic. The lighting is crisp and cinematic, emphasizing a professional yet edgy atmosphere suitable for an exclusive silent disco management interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBep4zc2JKgqfJlwQqkkPWz8ioePYW2VEXbYkpdQgynZofIGMW9YHhcXfwdhPEHJYkz3wcLYnv8HyOXejgjjBNMLn1yotOxaYfaYDVrlSV7MtJ1_cB-bVhzMIxTjZtto2VoGsdySZ0qrUi_HNY3_IuLbaScTnOeXBEjXf4HvSb993xPaZoVDMcNZeHT4oFDDJ2Ys4keEB5FfmHY7TS4rrr-5a13K8P7SzlfNkLNkHryHQi8InqpjZzZysGS8D-n6HXbX4PWh-0LKJry"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-20 h-[calc(100vh-80px)] flex flex-col py-8 bg-surface-container-lowest border-r border-white/5 w-64 hidden md:flex">
+<div class="px-6 mb-10 flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-primary-container live-pulse"></div>
+<div>
+<p class="font-label-mono text-primary-fixed text-[12px] leading-tight">System Admin</p>
+<p class="font-label-mono text-on-surface-variant text-[10px] uppercase tracking-widest">Midnight Pulse Hub</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 text-primary border-r-2 border-primary bg-primary/5 font-label-mono text-label-mono group transition-all translate-x-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-secondary-fixed-dim hover:text-white hover:bg-surface-container-high font-label-mono text-label-mono transition-all" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span>Attendees</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-secondary-fixed-dim hover:text-white hover:bg-surface-container-high font-label-mono text-label-mono transition-all" href="#">
+<span class="material-symbols-outlined">graphic_eq</span>
+<span>DJ Channels</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-secondary-fixed-dim hover:text-white hover:bg-surface-container-high font-label-mono text-label-mono transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-6 mb-8">
+<button class="w-full bg-primary text-background font-label-mono py-3 font-bold hover:bg-primary-container transition-all active:scale-95">
+                GO LIVE
+            </button>
+</div>
+<div class="px-4 pt-4 border-t border-white/5 space-y-1">
+<a class="flex items-center gap-4 px-4 py-2 text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors font-label-mono text-[12px]" href="#">
+<span class="material-symbols-outlined text-sm">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-2 text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors font-label-mono text-[12px]" href="#">
+<span class="material-symbols-outlined text-sm">terminal</span>
+<span>Logs</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-28 pb-20 px-6 md:px-12 min-h-screen">
+<!-- Welcome Header -->
+<div class="mb-12">
+<h2 class="font-headline-lg text-headline-lg text-white mb-2">SYSTEM DASHBOARD</h2>
+<p class="font-label-mono text-on-surface-variant flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#00f0ff] live-pulse"></span>
+                LIVE STATUS: OPERATIONAL / <span id="welcome-user-count">0</span> REGISTRATIONS
+            </p>
+</div>
+<!-- Overview Stats Bento -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+<div class="bg-surface-container p-6 border border-white/10 hover:border-primary transition-all group">
+<p class="font-label-mono text-on-surface-variant text-xs mb-4">TOTAL REGISTRATIONS</p>
+<div class="flex justify-between items-end">
+<h3 id="stat-total-registrations" class="font-display-lg text-4xl text-[#00f0ff]">0</h3>
+<span class="font-label-mono text-xs text-[#00f0ff]">TOTAL</span>
+</div>
+</div>
+<div class="bg-surface-container p-6 border border-white/10 hover:border-[#ff00ff] transition-all group">
+<p class="font-label-mono text-on-surface-variant text-xs mb-4">TODAY'S REGISTRATIONS</p>
+<div class="flex justify-between items-end">
+<h3 id="stat-todays-registrations" class="font-display-lg text-4xl text-[#ff00ff]">0</h3>
+<span class="font-label-mono text-xs text-[#ff00ff]">NEW TODAY</span>
+</div>
+</div>
+<div class="bg-surface-container p-6 border border-white/10 hover:border-[#7df4ff] transition-all group">
+<p class="font-label-mono text-on-surface-variant text-xs mb-4">LATEST REGISTRATION</p>
+<div class="flex justify-between items-end">
+<h3 id="stat-latest-registration" class="font-display-lg text-xl text-[#7df4ff] truncate w-full" title="None">None</h3>
+<span class="font-label-mono text-xs text-[#7df4ff] whitespace-nowrap">NEWEST</span>
+</div>
+</div>
+<div class="bg-surface-container p-6 border border-white/10 hover:border-[#00ff9d] transition-all group">
+<p class="font-label-mono text-on-surface-variant text-xs mb-4">UNIQUE BRANCHES</p>
+<div class="flex justify-between items-end">
+<h3 id="stat-unique-branches" class="font-display-lg text-4xl text-[#00ff9d]">0</h3>
+<span class="material-symbols-outlined text-[#00ff9d]">lan</span>
+</div>
+</div>
+</section>
+
+<!-- Main Insights Row -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+<!-- Registration Chart -->
+<div class="lg:col-span-2 bg-surface-container p-8 border border-white/5">
+<div class="flex justify-between items-center mb-10">
+<h4 class="font-headline-sm text-white font-bold tracking-tight">REGISTRATION TRENDS</h4>
+<div class="flex gap-2">
+<span class="px-3 py-1 font-label-mono text-[10px] border border-primary text-primary">7 DAYS</span>
+<span class="px-3 py-1 font-label-mono text-[10px] border border-white/10 text-on-surface-variant hover:text-white cursor-pointer">30 DAYS</span>
+</div>
+</div>
+<!-- Mock SVG Chart -->
+<div class="relative h-64 w-full">
+<svg class="w-full h-full preserve-3d" viewbox="0 0 1000 300">
+<!-- Grid Lines -->
+<line stroke="white" stroke-opacity="0.05" x1="0" x2="1000" y1="50" y2="50"></line>
+<line stroke="white" stroke-opacity="0.05" x1="0" x2="1000" y1="150" y2="150"></line>
+<line stroke="white" stroke-opacity="0.05" x1="0" x2="1000" y1="250" y2="250"></line>
+<!-- Data Path -->
+<path d="M0 280 L142 240 L284 260 L426 120 L568 180 L710 80 L852 40 L1000 60" fill="none" stroke="#00f0ff" stroke-linecap="round" stroke-width="3"></path>
+<!-- Glow -->
+<path d="M0 280 L142 240 L284 260 L426 120 L568 180 L710 80 L852 40 L1000 60" fill="none" stroke="#00f0ff" stroke-linecap="round" stroke-opacity="0.1" stroke-width="12"></path>
+<!-- Area Fill -->
+<path d="M0 280 L142 240 L284 260 L426 120 L568 180 L710 80 L852 40 L1000 60 L1000 300 L0 300 Z" fill="url(#gradient)" opacity="0.1"></path>
+<defs>
+<lineargradient id="gradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#00f0ff"></stop>
+<stop offset="100%" stop-color="transparent"></stop>
+</lineargradient>
+</defs>
+</svg>
+<div class="flex justify-between mt-4 font-label-mono text-[10px] text-on-surface-variant">
+<span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+</div>
+</div>
+</div>
+<!-- Recent Registrations -->
+<div class="bg-surface-container border border-white/5 flex flex-col">
+<div class="p-8 border-b border-white/5">
+<h4 class="font-headline-sm text-white font-bold tracking-tight uppercase">Recent Registrations</h4>
+</div>
+<div id="recent-registrations-list" class="flex-1 p-6 space-y-4">
+<!-- Will be populated dynamically with the 5 most recent registrations -->
+</div>
+</div>
+
+</div>
+<!-- Attendee Table Section -->
+<section class="bg-surface-container border border-white/5 overflow-hidden">
+<div class="p-8 border-b border-white/5 flex justify-between items-center">
+<h4 class="font-headline-sm text-white font-bold tracking-tight uppercase">Recent Signups</h4>
+<div class="flex items-center gap-6">
+    <button id="btn-refresh" class="font-label-mono text-primary-container text-xs hover:underline flex items-center gap-1.5 transition-all">
+        <span class="material-symbols-outlined text-sm">refresh</span> REFRESH
+    </button>
+    <button id="btn-export" class="font-label-mono text-primary text-xs hover:underline flex items-center gap-1.5 transition-all">
+        <span class="material-symbols-outlined text-sm">download</span> EXPORT CSV
+    </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-background">
+<th class="px-8 py-4 font-label-mono text-[10px] text-on-surface-variant uppercase">Ticket ID</th>
+<th class="px-8 py-4 font-label-mono text-[10px] text-on-surface-variant uppercase">Name</th>
+<th class="px-8 py-4 font-label-mono text-[10px] text-on-surface-variant uppercase">Email</th>
+<th class="px-8 py-4 font-label-mono text-[10px] text-on-surface-variant uppercase">Contact</th>
+<th class="px-8 py-4 font-label-mono text-[10px] text-on-surface-variant uppercase">Branch</th>
+<th class="px-8 py-4 font-label-mono text-[10px] text-on-surface-variant uppercase">Academic Year</th>
+<th class="px-8 py-4 font-label-mono text-[10px] text-on-surface-variant uppercase">Created At</th>
+</tr>
+</thead>
+<tbody id="registrations-body" class="divide-y divide-white/5">
+<!-- Dynamic registrations content -->
+</tbody>
+</table>
+</div>
+</section>
+
+</main>
+<!-- Footer Shell -->
+<footer class="fixed bottom-0 left-0 md:left-64 right-0 flex justify-between items-center px-8 py-4 bg-background z-40 border-t border-white/10">
+<p class="font-label-mono text-on-tertiary-fixed-variant text-[10px]">© 2024 SILENT DISCO. SYSTEM OPERATIONAL.</p>
+<div class="flex gap-6">
+<a class="font-label-mono text-[10px] text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors" href="#">Network Status</a>
+<a class="font-label-mono text-[10px] text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors" href="#">API Reference</a>
+<a class="font-label-mono text-[10px] text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors" href="#">Privacy</a>
+</div>
+</footer>
+<!-- Mobile Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full bg-background/80 backdrop-blur-xl md:hidden z-50 flex justify-around items-center py-4 border-t border-white/10">
+<button class="text-primary flex flex-col items-center gap-1">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-mono text-[8px]">DASHBOARD</span>
+</button>
+<button class="text-on-surface-variant flex flex-col items-center gap-1">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-mono text-[8px]">ATTENDEES</span>
+</button>
+<button class="text-on-surface-variant flex flex-col items-center gap-1">
+<span class="material-symbols-outlined">graphic_eq</span>
+<span class="font-label-mono text-[8px]">CHANNELS</span>
+</button>
+<button class="text-on-surface-variant flex flex-col items-center gap-1">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-mono text-[8px]">SETTINGS</span>
+</button>
+</nav>
+<script>
+        // Simple Interaction logic
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                el.classList.add('scale-95');
+                setTimeout(() => el.classList.remove('scale-95'), 150);
+            });
+        });
+
+
+
+        // Supabase Integration & Admin System
+        console.log("Dashboard Loaded");
+
+        let allRegistrations = [];
+
+        // Escape HTML for XSS prevention
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Format date/time
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'N/A';
+            const pad = (n) => n.toString().padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        }
+
+        // Name initials generator
+        function getInitials(name) {
+            if (!name) return '??';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        // Check if created today
+        function isToday(dateString) {
+            if (!dateString) return false;
+            const d = new Date(dateString);
+            if (isNaN(d.getTime())) return false;
+            const today = new Date();
+            return d.getDate() === today.getDate() &&
+                   d.getMonth() === today.getMonth() &&
+                   d.getFullYear() === today.getFullYear();
+        }
+
+        // Fetch registrations from Supabase
+        async function fetchRegistrations() {
+            const supabase = window.supabaseClient;
+            const tbody = document.getElementById('registrations-body');
+
+            if (!supabase) {
+                console.error("Supabase client is not available.");
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-8 py-12 text-center text-error font-label-mono">
+                            Supabase Connection Error: Client not initialized.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            console.log("Supabase Connected");
+
+            try {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-8 py-12 text-center text-on-surface-variant font-label-mono animate-pulse">
+                            RETRIEVING DATA...
+                        </td>
+                    </tr>
+                `;
+
+                const { data, error } = await supabase
+                    .from('registrations')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    throw error;
+                }
+
+                allRegistrations = data || [];
+                console.log("Registrations Retrieved");
+                
+                updateDashboard(allRegistrations);
+
+            } catch (err) {
+                console.error("Failed to retrieve registrations:", err);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-8 py-12 text-center text-error font-label-mono">
+                            Query Failure: ${escapeHtml(err.message || 'Unable to retrieve registrations.')}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Update dashboard statistics and table
+        function updateDashboard(registrations) {
+            // Update stats cards
+            const totalRegs = registrations.length;
+            const todayRegs = registrations.filter(r => isToday(r.created_at)).length;
+            const latestReg = registrations.length > 0 ? registrations[0].full_name : 'None';
+            const uniqueBranches = new Set(registrations.map(r => (r.branch || '').trim().toLowerCase()).filter(Boolean)).size;
+
+            // Elements
+            document.getElementById('stat-total-registrations').textContent = totalRegs;
+            document.getElementById('stat-todays-registrations').textContent = todayRegs;
+            
+            const latestEl = document.getElementById('stat-latest-registration');
+            latestEl.textContent = latestReg;
+            latestEl.title = latestReg;
+
+            document.getElementById('stat-unique-branches').textContent = uniqueBranches;
+
+            // Welcome header registration count
+            const welcomeCountEl = document.getElementById('welcome-user-count');
+            if (welcomeCountEl) {
+                welcomeCountEl.textContent = totalRegs;
+            }
+
+            // Populate Recent Registrations list (5 most recent)
+            const recentRegs = registrations.slice(0, 5);
+            const recentList = document.getElementById('recent-registrations-list');
+            if (recentList) {
+                if (recentRegs.length === 0) {
+                    recentList.innerHTML = `
+                        <div class="text-center py-8 text-on-surface-variant font-label-mono text-sm">
+                            No registrations yet.
+                        </div>
+                    `;
+                } else {
+                    recentList.innerHTML = recentRegs.map((reg, index) => {
+                        const formattedTime = formatDate(reg.created_at);
+                        const borderColors = ['border-[#00f0ff]', 'border-[#ff00ff]', 'border-[#bcff00]', 'border-[#00ff9d]', 'border-[#7df4ff]'];
+                        const borderColor = borderColors[index % borderColors.length];
+                        return `
+                            <div class="p-4 bg-background border-l-4 ${borderColor} flex justify-between items-center group hover:bg-surface-container-high transition-colors">
+                                <div>
+                                    <p class="font-label-mono text-primary text-xs">${escapeHtml(reg.ticket_id || 'N/A')}</p>
+                                    <h5 class="font-bold text-white uppercase mt-1 text-sm md:text-base">${escapeHtml(reg.full_name || 'N/A')}</h5>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-label-mono text-white text-xs md:text-sm truncate max-w-[120px]" title="${escapeHtml(reg.branch)}">${escapeHtml(reg.branch || 'N/A')}</p>
+                                    <p class="text-[10px] text-on-surface-variant uppercase mt-1">${escapeHtml(formattedTime)}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+
+            // Populate table
+            renderTable(registrations);
+        }
+
+
+        // Render table rows
+        function renderTable(registrations) {
+            const tbody = document.getElementById('registrations-body');
+            
+            if (registrations.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-8 py-12 text-center text-on-surface-variant font-label-mono">
+                            No registrations yet.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = registrations.map(reg => {
+                const initials = getInitials(reg.full_name);
+                const formattedDate = formatDate(reg.created_at);
+                return `
+                    <tr class="hover:bg-white/5 transition-colors group">
+                        <td class="px-8 py-6 font-label-mono text-primary text-sm">${escapeHtml(reg.ticket_id || 'N/A')}</td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">${escapeHtml(initials)}</div>
+                                <span class="font-bold text-white">${escapeHtml(reg.full_name || 'N/A')}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 font-label-mono text-on-surface-variant text-sm">${escapeHtml(reg.email || 'N/A')}</td>
+                        <td class="px-8 py-6 text-on-surface-variant text-sm">${escapeHtml(reg.contact || 'N/A')}</td>
+                        <td class="px-8 py-6 text-on-surface-variant text-sm">${escapeHtml(reg.branch || 'N/A')}</td>
+                        <td class="px-8 py-6 text-on-surface-variant text-sm">${escapeHtml(reg.academic_year || 'N/A')}</td>
+                        <td class="px-8 py-6 font-label-mono text-on-surface-variant text-xs">${escapeHtml(formattedDate)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Live Search functionality
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim().toLowerCase();
+                const filtered = allRegistrations.filter(reg => {
+                    const name = (reg.full_name || '').toLowerCase();
+                    const email = (reg.email || '').toLowerCase();
+                    const ticket = (reg.ticket_id || '').toLowerCase();
+                    return name.includes(query) || email.includes(query) || ticket.includes(query);
+                });
+                renderTable(filtered);
+                console.log("Search Executed");
+            });
+        }
+
+        // CSV Export functionality
+        function exportToCsv() {
+            if (allRegistrations.length === 0) {
+                alert("No registrations available to export.");
+                return;
+            }
+
+            const headers = ['ticket_id', 'full_name', 'email', 'contact', 'branch', 'academic_year', 'created_at'];
+            
+            const escapeCsvCell = (cell) => {
+                if (cell === null || cell === undefined) return '';
+                const str = String(cell);
+                if (/[",\n\r]/.test(str)) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+
+            const rows = allRegistrations.map(r => [
+                r.ticket_id,
+                r.full_name,
+                r.email,
+                r.contact,
+                r.branch,
+                r.academic_year,
+                r.created_at
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.map(escapeCsvCell).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'silent_disco_registrations.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            console.log("CSV Exported");
+        }
+
+        // Event Listeners
+        const btnRefresh = document.getElementById('btn-refresh');
+        if (btnRefresh) {
+            btnRefresh.addEventListener('click', fetchRegistrations);
+        }
+
+        const btnExport = document.getElementById('btn-export');
+        if (btnExport) {
+            btnExport.addEventListener('click', exportToCsv);
+        }
+
+        // Initial Load on authenticated display
+        fetchRegistrations();
+
+    </script>
+</body></html>
